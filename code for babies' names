@@ -1,0 +1,358 @@
+Use IPython & anaconda
+Download datasets here, https://github.com/wesm/pydata-book/tree/master/ch02/names
+
+# In[1]:
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+# In[2]:
+
+names1880 = pd.read_csv('ch02/yob1880.txt', names = ['name', 'sex', 'births'])
+
+
+# In[3]:
+
+names1880
+
+
+# In[4]:
+
+names1880.groupby('sex').births.sum()
+
+
+# In[43]:
+
+years = range(1880, 2011)
+
+
+# In[44]:
+
+pieces = []
+columns = ['name', 'sex', 'births']
+
+
+# In[49]:
+
+for year in years:
+    path = 'ch02/yob%d.txt' % year
+    frame = pd.read_csv(path, names=columns)
+    frame['year'] = year
+    pieces.append(frame)
+    names = pd.concat(pieces, ignore_index=True)
+
+
+# In[50]:
+
+names
+
+
+# In[51]:
+
+total_births = names.pivot_table(names, index = 'year', columns = 'sex', aggfunc = sum)
+
+
+# In[52]:
+
+total_births.tail()
+
+
+# In[53]:
+
+total_births.plot(title='Total births by sex and year')
+
+
+# In[54]:
+
+def add_prop(group):
+    births = group.births.astype(float)
+    
+    group['prop'] = births / births.sum()
+    return group
+names = names.groupby(['year', 'sex']).apply(add_prop)
+
+
+# In[55]:
+
+names
+
+
+# In[56]:
+
+np.allclose(names.groupby(['year', 'sex']).prop.sum(), 1)
+
+
+# In[57]:
+
+def get_top1000(group):
+    return group.sort_index(by='births', ascending = False)[:1000]
+grouped = names.groupby(['year', 'sex'])
+top1000 = grouped.apply(get_top1000)
+
+
+# In[58]:
+
+top1000
+
+
+# In[59]:
+
+boys = top1000[top1000.sex == 'M']
+
+
+# In[60]:
+
+girls = top1000[top1000.sex == 'F']
+
+
+# In[61]:
+
+total_births = top1000.pivot_table('births', index = 'year', columns = 'name', aggfunc = sum)
+
+
+# In[62]:
+
+total_births
+
+
+# In[63]:
+
+subset = total_births[['John', 'Harry', 'Mary', 'Marilyn']]
+
+
+# In[64]:
+
+subset.plot(subplots = True, figsize = (12, 10), grid = False, title = "Number of births per year")
+
+
+# In[65]:
+
+plt.show()
+
+
+# In[66]:
+
+table = top1000.pivot_table('prop', index = 'year', columns = 'sex', aggfunc = sum)
+
+
+# In[67]:
+
+table.plot(title = 'Sum of table1000.prop by year and sex',
+                yticks=np.linspace(0, 1.2, 13), xticks=range(1880, 2020, 10))
+
+
+# In[68]:
+
+df = boys[boys.year == 2010]
+
+
+# In[69]:
+
+df
+
+
+# In[71]:
+
+plt.show()
+
+
+# In[111]:
+
+prop_cumsum = df.sort_index(by='prop', ascending=False).prop.cumsum()
+
+
+# In[117]:
+
+prop_cumsum.values.searchsorted(0.5)
+
+
+# In[124]:
+
+df = boys[boys.year == 1900]
+in1900 = df.sort_index(by='prop', ascending=False).prop.cumsum()
+in1900.values.searchsorted(0.5) + 1
+
+
+# In[126]:
+
+def get_quantile_count(group, q=0.5):
+    group = group.sort_index(by = 'prop', ascending = False)
+    return group.prop.cumsum().values.searchsorted(q) +1
+
+
+# In[127]:
+
+diversity = top1000.groupby(['year', 'sex']).apply(get_quantile_count)
+diversity = diversity.unstack('sex')
+
+
+# In[128]:
+
+diversity.head()
+
+
+# In[129]:
+
+diversity.plot(title = "Number of popular names in top 50%")
+
+
+# In[130]:
+
+plt.show()
+
+
+# In[134]:
+
+get_last_letter = lambda x: x[-1]
+last_letters = names.name.map(get_last_letter)
+last_letters.name = 'last_letter'
+
+
+# In[135]:
+
+table = names.pivot_table('births', index=last_letters,
+                          columns=['sex', 'year'], aggfunc=sum)
+
+
+# In[138]:
+
+last_letters.head(10)
+
+
+# In[137]:
+
+last_letters.tail()
+
+
+# In[140]:
+
+subtable = table.reindex(columns=[1910, 1960, 2010], level = 'year')
+
+
+# In[141]:
+
+subtable.head()
+
+
+# In[142]:
+
+subtable.sum()
+
+
+# In[143]:
+
+letter_prop = subtable / subtable.sum().astype(float)
+
+
+# In[145]:
+
+fig, axes = plt.subplots(2,1, figsize=(10,8))
+letter_prop['M'].plot(kind='bar', rot=0, ax=axes[0], title='Male')
+letter_prop['F'].plot(kind='bar', rot=0, ax=axes[1], title='Female', legend=False)
+
+
+# In[146]:
+
+plt.show()
+
+
+# In[147]:
+
+letter_prop = table / table.sum().astype(float)
+
+
+# In[148]:
+
+dny_ts = letter_prop.ix[['d', 'n', 'y'], 'M'].T
+
+
+# In[149]:
+
+dny_ts.head()
+
+
+# In[150]:
+
+dny_ts.plot(style={'d' : '-.', 'n' : '-', 'y': ':'})
+
+
+# In[151]:
+
+plt.show()
+
+
+# In[152]:
+
+all_names = top1000.name.unique()
+
+
+# In[153]:
+
+mask = np.array(['lesl' in x.lower() for x in all_names])
+
+
+# In[154]:
+
+lesley_like = all_names[mask]
+
+
+# In[155]:
+
+lesley_like
+
+
+# In[156]:
+
+filtered = top1000[top1000.name.isin(lesley_like)]
+
+
+# In[157]:
+
+filtered.groupby('name').births.sum()
+
+
+# In[158]:
+
+filtered.head(10)
+
+
+# In[159]:
+
+filtered.tail(10)
+
+
+# In[160]:
+
+table = filtered.pivot_table('births', index= 'year', columns = 'sex', aggfunc = 'sum')
+
+
+# In[161]:
+
+table = table.div(table.sum(1), axis=0)
+
+
+# In[162]:
+
+table.tail()
+
+
+# In[163]:
+
+table.head(5)
+
+
+# In[164]:
+
+table.tail(5)
+
+
+# In[165]:
+
+table.plot(style={'M':'k-', 'F':'k--'})
+
+
+# In[166]:
+
+plt.show()
