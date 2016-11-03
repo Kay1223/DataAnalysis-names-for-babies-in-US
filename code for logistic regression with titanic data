@@ -40,7 +40,7 @@ X = data_np[:, :-1]
 y = data_np[:, -1]
 
 
-# In[16]:
+# In[7]:
 
 female = X[:, 0] == 1
 survived = y == 1
@@ -56,7 +56,7 @@ D = {'male' : np.histogram(age[~survived & ~female],
                                              bins = bins_)[0]}
 
 
-# In[17]:
+# In[8]:
 
 #plot the data
 bins = bins_[ :-1]
@@ -76,26 +76,26 @@ for i, sex, color in zip((0,1),
     plt.legend()
 
 
-# In[18]:
+# In[9]:
 
 # split X and y into train and test datasets.
 (X_train, X_test, y_train,
 y_test) = cv.train_test_split(X, y, test_size = .05)
 
 
-# In[19]:
+# In[10]:
 
 # instanciate the classifier
 logreg = lm.LogisticRegression()
 
 
-# In[20]:
+# In[11]:
 
 logreg.fit(X_train, y_train)
 y_predicted = logreg.predict(X_test)
 
 
-# In[21]:
+# In[12]:
 
 plt.imshow(np.vstack((y_test, y_predicted)),
                      interpolation = 'none', cmap = 'bone')
@@ -104,12 +104,12 @@ plt.title(('Actual and predicted survival '
                 'outcomes on the test set'))
 
 
-# In[22]:
+# In[13]:
 
 cv.cross_val_score(logreg, X, y)
 
 
-# In[23]:
+# In[14]:
 
 grid = gs.GridSearchCV(logreg,
                                   {'C' : np.logspace(-5, 5, 50)})
@@ -117,7 +117,7 @@ grid.fit(X_train, y_train)
 grid.best_params_
 
 
-# In[24]:
+# In[15]:
 
 cv.cross_val_score(grid.best_estimator_, X, y)
 
