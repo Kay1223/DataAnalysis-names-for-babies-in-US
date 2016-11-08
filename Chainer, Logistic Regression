@@ -77,6 +77,8 @@ for i in range(10000):
     x = Variable(xtrain)
     y = Variable(ytrain)
     model.zerograds()
+    loss = model(x, y)
+    loss.backward()
     optimizer.update()
 
 
@@ -116,6 +118,24 @@ for j in range(5000): # 全体データの学習回数
     loss = model(x,y)
     loss.backward()
     optimizer.update()
+
+#  (Reserve)勾配法
+n = 75
+bs = 25
+for j in range(5000): # 全体データの学習回数
+    accum_loss = None
+    sffindx = np.random.permutation(n)
+    for i in range(0, n, bs):
+        x = Variable(xtrain[sffindx[\
+                                           i: (i+bs) if (i+bs) < n else n]])
+        y = Variable(ytrain[sffindx[\
+                                           i: (i+bs) if (i+bs) < n else n]])
+        model.zerograds()
+        loss = model(x, y)
+        accum_loss = loss if accum_loss is None \
+                                        else accum_loss + loss
+        loss.backward()
+        optimizer.update()
 
 
 
