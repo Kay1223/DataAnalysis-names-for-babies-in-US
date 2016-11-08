@@ -1,0 +1,130 @@
+
+IPython, Anaconda, Chainer
+
+# In[0]:
+
+# Reference
+# http://qiita.com/icoxfog417/items/96ecaff323434c8d677b
+# https://github.com/pfnet/chainer/blob/master/examples/mnist/train_mnist.py
+
+
+# In[1]:
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+# In[1]:
+
+# データ読み込み
+df = pd.read_csv("data.csv")
+
+
+# In[2]:
+
+# DataFrameをNumpy配列に変換
+data_np = df.astype(np.float64).values
+X = data_np[:, 1:]
+Y = data_np[:, 0]
+
+
+# In[3]:
+
+# 変数設定
+xtrain = X[:, :500]
+ytrain = Y[:500]
+xtest =  X[:, 501:]
+yans =  Y[501:]
+
+
+# In[4]:
+
+from chainer import Link, Chain, ChainList, Variable, optimizers
+import chainer.functions as F
+import chainer.links as L
+
+
+# In[5]:
+
+# モデル記述
+class Logistic(Chain):
+
+    def __init__(self):
+        super(Logistic, self).__init__(
+            l1=L.Linear(4, 3),
+            l2=L.Linear(3, 2)
+        )
+
+    def __call__(self, x, y):
+        return F.mean_squared_error(self.fwd(x), y)
+    
+    def fwd(self, x):
+        h = F.sigmoid(self.l1(x))
+        o = self.l2(h)
+        return o
+
+# 最適化アルゴリズム
+model = Logistic()
+optimizer = optimizers.Adam()
+optimizer.setup(model)
+
+
+# In[6]:
+
+from chainer.functions.loss.mean_squared_error import mean_squared_error
+model = L.Classifier(Logistic(), lossfun=mean_squared_error)
+
+
+# In[7]:
+
+# 学習
+for i in range(10000):
+    x = Variable(xtrain)
+    y = Variable(ytrain)
+    model.zerograds()
+    optimizer.update()
+
+
+# In[8]:
+
+# テスト
+xt = Variable(xtest, volatile = 'on')
+yy = model.fwd(xt)
+print(yy)
+ans = yy.data
+print(ans)
+nrow, ncol = ans.shape
+ok = 0
+for i in range(nrow):
+    cls = np.argmax(ans[i,:])
+    print( ans[i,:], cls)            
+    if cls == yans[i]:
+        ok += 1        
+print (ok, "/", nrow, " = ", (ok * 1.0)/nrow)
+
+
+
+
+
+# In[ ]:
+
+#  (Reserve)ミニバッチ学習
+n = 500
+bs = 25
+for j in range(5000): # 全体データの学習回数
+    sffindx = np.random.permutation(n)
+    for i in range(0, n, bs):
+        x = Variable(xtrain[sffindx[ i : (i+bs) if (i+ bs) < n else n]])
+        y = Variable(ytrain[sffindx[ i : (i+bs) if (i+ bs) < n else n]])
+        
+    model.zerograds()
+    loss = model(x,y)
+    loss.backward()
+    optimizer.update()
+
+
+
+
+
+
