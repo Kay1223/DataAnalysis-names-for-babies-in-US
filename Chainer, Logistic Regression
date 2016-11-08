@@ -72,12 +72,6 @@ optimizer.setup(model)
 
 # In[6]:
 
-from chainer.functions.loss.mean_squared_error import mean_squared_error
-model = L.Classifier(Logistic(), lossfun=mean_squared_error)
-
-
-# In[7]:
-
 # 学習
 for i in range(10000):
     x = Variable(xtrain)
@@ -86,7 +80,7 @@ for i in range(10000):
     optimizer.update()
 
 
-# In[8]:
+# In[7]:
 
 # テスト
 xt = Variable(xtest, volatile = 'on')
