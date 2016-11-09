@@ -24,18 +24,18 @@ df = pd.read_csv("data.csv")
 # In[2]:
 
 # DataFrameをNumpy配列に変換
-data_np = df.astype(np.float64).values
+data_np = df.astype(np.float32).values
 X = data_np[:, 1:]
-Y = data_np[:, 0]
+y = data_np[:, 0]
 
 
 # In[3]:
 
 # 変数設定
 xtrain = X[:, :500]
-ytrain = Y[:500]
+ytrain = y[:500]
 xtest =  X[:, 501:]
-yans =  Y[501:]
+yans =  y[501:]
 
 
 # In[4]:
@@ -55,11 +55,11 @@ class Logistic(Chain):
             l1=F.Linear(28, 2)
         )
 
-    def __call__(self, x, y):
-        return F.mean_squared_error(self.fwd(x), y)
+    def __call__(self, X, y):
+        return F.mean_squared_error(self.fwd(X), y)
     
-    def fwd(self, x):
-        return F.softmax(self.l1(x))
+    def fwd(self, X):
+        return F.softmax(self.l1(X))
 
 # 最適化アルゴリズム
 model = Logistic()
@@ -72,9 +72,9 @@ optimizer.setup(model)
 # 学習
 for i in range(10000):
     x = Variable(xtrain)
-    y = Variable(ytrain)
+    t = Variable(ytrain)
     model.zerograds()
-    loss = model(x, y)
+    loss = model(x, t)
     loss.backward()
     optimizer.update()
 
