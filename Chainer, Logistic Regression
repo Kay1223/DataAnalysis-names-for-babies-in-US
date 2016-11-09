@@ -47,22 +47,19 @@ import chainer.links as L
 
 # In[5]:
 
-# モデル記述
+# モデル記述, 2値分類(d= 28からd=2への変換)
 class Logistic(Chain):
 
     def __init__(self):
         super(Logistic, self).__init__(
-            l1=L.Linear(4, 3),
-            l2=L.Linear(3, 2)
+            l1=F.Linear(28, 2)
         )
 
     def __call__(self, x, y):
         return F.mean_squared_error(self.fwd(x), y)
     
     def fwd(self, x):
-        h = F.sigmoid(self.l1(x))
-        o = self.l2(h)
-        return o
+        return F.softmax(self.l1(x))
 
 # 最適化アルゴリズム
 model = Logistic()
