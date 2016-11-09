@@ -8,132 +8,161 @@ IPython, Anaconda, Chainer
 # https://github.com/pfnet/chainer/blob/master/examples/mnist/train_mnist.py
 
 
-# In[1]:
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-
 
 # In[1]:
 
-# データ読み込み
-df = pd.read_csv("data.csv")
+from abc import ABCMeta, abstractmethod
+from chainer import FunctionSet, Variable, optimizers
+from chainer import functions as F
+from chainer import optimizers
+from sklearn import base,datasets, cross_validation
 
 
 # In[2]:
 
-# DataFrameをNumpy配列に変換
-data_np = df.astype(np.float32).values
-X = data_np[:, 1:]
-y = data_np[:, 0]
+class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
+    def __init__(self, optimizer=optimizers.SGD(), n_iter=10000, eps=1e-5, report=100,
+                 **params):
+        self.network = self._setup_network(**params)
+        self.optimizer = optimizer
+        self.optimizer.setup(self.network.collect_parameters())
+        self.n_iter = n_iter
+        self.eps = eps
+        self.report = report
+
+    @abstractmethod
+    def _setup_network(self, **params):
+        return FunctionSet(l1=F.Linear(1, 1))
+
+    @abstractmethod
+    def forward(self, x):
+        y = self.network.l1(x)
+        return y
+
+    @abstractmethod
+    def loss_func(self, y, t):
+        return F.mean_squared_error(y, t)
+
+    @abstractmethod
+    def output_func(self, h):
+        return F.identity(h)
+
+    def fit(self, x_data, y_data):
+        score = 1e100
+        x = Variable(x_data)
+        t = Variable(y_data)
+        for i in range(self.n_iter):
+            self.optimizer.zero_grads()
+            loss = self.loss_func(self.forward(x), t)
+            loss.backward()
+            self.optimizer.update()
+            d_score = score - loss.data
+            score = loss.data
+            if d_score < self.eps:
+                print(i, loss.data, d_score)
+                break
+            if self.report > 0 and i % self.report == 0:
+                print(i, loss.data, d_score)
+        return self
+
+    def predict(self, x_data):
+        x = Variable(x_data)
+        y = self.forward(x)
+        return self.output_func(y).data
 
 
 # In[3]:
 
-# 変数設定
-xtrain = X[:, :500]
-ytrain = y[:500]
-xtest =  X[:, 501:]
-yans =  y[501:]
+class ChainerRegresser(BaseChainerEstimator, base.RegressorMixin):
+    pass
+
+
+class ChainerClassifier(BaseChainerEstimator, base.ClassifierMixin):
+    def predict(self, x_data):
+        return BaseChainerEstimator.predict(self, x_data).argmax(1)
 
 
 # In[4]:
 
-from chainer import Link, Chain, ChainList, Variable, optimizers
-import chainer.functions as F
-import chainer.links as L
+class LogisticRegression(ChainerClassifier):
+    def _setup_network(self, **params):
+        return FunctionSet(l1=F.Linear(params["n_dim"], params["n_class"]))
+
+    def forward(self, x):
+        y = self.network.l1(x)
+        return y
+
+    def loss_func(self, y, t):
+        return F.softmax_cross_entropy(y, t)
+
+    def output_func(self, h):
+        return F.softmax(h)
 
 
 # In[5]:
 
-# モデル記述, 2値分類(d= 28からd=2への変換)
-class Logistic(Chain):
-
-    def __init__(self):
-        super(Logistic, self).__init__(
-            l1=F.Linear(28, 2)
-        )
-
-    def __call__(self, X, y):
-        return F.mean_squared_error(self.fwd(X), y)
-    
-    def fwd(self, X):
-        return F.softmax(self.l1(X))
-
-# 最適化アルゴリズム
-model = Logistic()
-optimizer = optimizers.Adam()
-optimizer.setup(model)
+import numpy as np
+import pandas as pd
+from skchainer import linear
+from scipy import special
 
 
 # In[6]:
 
-# 学習
-for i in range(10000):
-    x = Variable(xtrain)
-    t = Variable(ytrain)
-    model.zerograds()
-    loss = model(x, t)
-    loss.backward()
-    optimizer.update()
+# n_dim = 入力層の次元, n_classes = 出力層の次元
+n_dim = 28
+n_classes = 2
 
 
 # In[7]:
 
-# テスト
-xt = Variable(xtest, volatile = 'on')
-yy = model.fwd(xt)
-print(yy)
-ans = yy.data
-print(ans)
-nrow, ncol = ans.shape
-ok = 0
-for i in range(nrow):
-    cls = np.argmax(ans[i,:])
-    print( ans[i,:], cls)            
-    if cls == yans[i]:
-        ok += 1        
-print (ok, "/", nrow, " = ", (ok * 1.0)/nrow)
+# Logistic Model, 学習回数 
+model = linear.LogisticRegression(optimizer=optimizers.AdaDelta(),
+                                  network_params=dict(n_dim=n_dim, n_classes=n_classes),
+                                  n_iter=1000, report=0)
 
 
+# In[8]:
+
+# Data読み込み
+df = pd.read_csv("Py.Ch.Logistic/trial.csv")
 
 
+# In[9]:
 
-# In[ ]:
+# DataFrameをNumpy配列に変換
+data_np = df.values
+x = data_np[:, 1:].astype(np.float32)
+y = data_np[:, 0].astype(np.int32)
 
-#  (Reserve)ミニバッチ学習
-n = 500
-bs = 25
-for j in range(5000): # 全体データの学習回数
-    sffindx = np.random.permutation(n)
-    for i in range(0, n, bs):
-        x = Variable(xtrain[sffindx[ i : (i+bs) if (i+ bs) < n else n]])
-        y = Variable(ytrain[sffindx[ i : (i+bs) if (i+ bs) < n else n]])
-        
-    model.zerograds()
-    loss = model(x,y)
-    loss.backward()
-    optimizer.update()
 
-#  (Reserve)勾配法
-n = 75
-bs = 25
-for j in range(5000): # 全体データの学習回数
-    accum_loss = None
-    sffindx = np.random.permutation(n)
-    for i in range(0, n, bs):
-        x = Variable(xtrain[sffindx[\
-                                           i: (i+bs) if (i+bs) < n else n]])
-        y = Variable(ytrain[sffindx[\
-                                           i: (i+bs) if (i+bs) < n else n]])
-        model.zerograds()
-        loss = model(x, y)
-        accum_loss = loss if accum_loss is None \
-                                        else accum_loss + loss
-        loss.backward()
-        optimizer.update()
+# In[10]:
 
+# model fit, predict
+model.fit(x, y)
+ypred = model.predict(x)
+
+
+# In[11]:
+
+from sklearn import metrics
+
+
+# In[12]:
+
+# 予測精度
+print(metrics.accuracy_score(y, ypred))
+
+
+# In[13]:
+
+# cross_val
+score = cross_validation.cross_val_score(model, x, y, cv=5, n_jobs=-1).mean()
+
+
+# In[14]:
+
+print(score)
 
 
 
