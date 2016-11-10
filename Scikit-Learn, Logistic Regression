@@ -1,0 +1,68 @@
+# IPython, anaconda
+
+# In[1]:
+
+import numpy as np
+import pandas as pd
+import sklearn.cross_validation as cv
+from sklearn.cross_validation import train_test_split
+
+
+# In[2]:
+
+# Import Data
+df = pd.read_csv("data/collection.csv")
+
+
+# In[3]:
+
+X = df[[1,2,3,4,5]]
+Y = df[[0]]
+
+
+# In[4]:
+
+# Data Split
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+
+
+# In[5]:
+
+# Import Logistic Regression
+from sklearn.linear_model import LogisticRegression
+
+
+# In[6]:
+
+# Model
+model = LogisticRegression()
+
+
+# In[7]:
+
+# Model fit
+result =model.fit(X_train, Y_train)
+
+
+# In[8]:
+
+# Score 
+model.score(X_test, Y_test)
+
+# In[9]:
+
+# intercept
+print(model.intercept_)
+
+# In[10]:
+
+# 偏回帰係数
+print(model.coef_)
+
+# In[11]:
+
+# 決定係数
+print(model.score(X,Y))
+
+
+ 
