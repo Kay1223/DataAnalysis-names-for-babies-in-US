@@ -1,0 +1,55 @@
+# IPython pylab mode ($ ipython --pylab), anaconda, sklearn,
+TensorFlow, Karas
+
+
+In [1]: import seaborn as sns
+   ...: import numpy as np
+   ...: import pandas as pd
+   ...: from sklearn.cross_validation import train_test_split
+   ...: from sklearn.linear_model import LogisticRegressionCV
+   ...: from keras.models import Sequential
+   ...: from keras.layers.core import Dense, Activation
+   ...: from keras.utils import np_utils
+
+In [2]: # Data
+   ...: df = pd.read_csv("Py.Ch.Logistic/trial.csv")
+
+In [3]: # DataFrameをNumpy配列に変換
+   ...: data_np = df.astype(np.float32).values
+   ...: X = data_np[:, 1:]
+   ...: y = data_np[:, 0]
+   ...: 
+
+In [4]: # Make test and train set
+   ...: X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.5
+   ...: , random_state=0)
+
+In [5]: ## create model
+    ...: model = Sequential()
+    ...: model.add(Dense(12, input_dim=28, init='uniform', activation='relu')) 
+    ...: # 12 neurons, 28 input variables 
+    ...: model.add(Dense(1, init='uniform', activation='sigmoid'))
+    ...: 
+
+In [6]: # Compile model
+    ...: model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['a
+    ...: ccuracy'])
+
+In [7]: model.fit(X, y, nb_epoch=150, batch_size=10)
+
+In [16]: scores = model.evaluate(X, y)
+print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+
+
+# Another layer-sturcuture NN (change In[5]: -)
+
+In [5]: ## create model NN
+model = Sequential()
+model.add(Dense(12, input_dim=28, init='uniform', activation='relu')) #12 neurons, 28 input variables
+model.add(Dense(8, init='uniform', activation='relu')) # 8 neurons
+model.add(Dense(1, init='uniform', activation='sigmoid'))
+
+In [6]:# Compile model
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+In[7]:model.fit(X, y, nb_epoch=150, batch_size=10)
