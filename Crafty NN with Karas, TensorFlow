@@ -12,7 +12,7 @@ In [1]: import seaborn as sns
    ...: from keras.utils import np_utils
 
 In [2]: # Data
-   ...: df = pd.read_csv("Py.Ch.Logistic/trial.csv")
+   ...: df = pd.read_csv("Data/data.csv")
 
 In [3]: # DataFrameをNumpy配列に変換
    ...: data_np = df.astype(np.float32).values
