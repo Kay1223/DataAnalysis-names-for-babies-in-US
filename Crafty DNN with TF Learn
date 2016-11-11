@@ -1,0 +1,62 @@
+# TensorFlow, IPython, Anaconda
+# Iris Data is here
+# https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/tutorials/monitors
+
+# In[1]:
+
+import tensorflow as tf
+import numpy as np
+
+
+# In[2]:
+
+# Data sets
+IRIS_TRAINING = "iris_training.csv"
+IRIS_TEST = "iris_test.csv"
+
+
+# In[3]:
+
+# Load datasets.
+training_set = tf.contrib.learn.datasets.base.load_csv_with_header(filename=IRIS_TRAINING,\
+                                            target_dtype=np.int, features_dtype=np.float32,)
+test_set = tf.contrib.learn.datasets.base.load_csv_with_header(filename=IRIS_TEST, \
+                                            target_dtype=np.int, features_dtype=np.float32,)
+
+x_train, x_test, y_train, y_test = training_set.data, test_set.data,\
+                                   training_set.target, test_set.target
+
+
+# In[4]:
+
+feature_columns = [tf.contrib.layers.real_valued_column("", dimension=4)]
+
+
+# In[5]:
+
+# Build 3 layer DNN with 10, 20, 10 units respectively.
+classifier = tf.contrib.learn.DNNClassifier(feature_columns=feature_columns, hidden_units=[10, 20, 10], n_classes=3)
+
+
+# In[6]:
+
+# Fit model.
+classifier.fit(x=x_train, y=y_train, steps=2000)
+
+
+# In[7]:
+
+# Evaluate accuracy.
+accuracy_score = classifier.evaluate(x=x_test, y=y_test)["accuracy"]
+print('Accuracy: {0:f}'.format(accuracy_score))
+
+
+# In[8]:
+
+# Classify two new flower samples.
+new_samples = np.array(
+    [[6.4, 3.2, 4.5, 1.5], [5.8, 3.1, 5.0, 1.7]], dtype=float)
+y = classifier.predict(new_samples)
+print ('Predictions: {}'.format(str(y)))
+
+
