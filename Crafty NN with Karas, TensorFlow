@@ -6,7 +6,7 @@ In [1]: import numpy as np
    ...: import pandas as pd
    ...: from sklearn.cross_validation import train_test_split
    ...: from keras.models import Sequential
-   ...: from keras.layers.core import Dense, Activation
+   ...: from keras.layers.core import Dense, Activation, Dropout
    ...: from keras.utils import np_utils
 
 In [2]: # Data
@@ -44,7 +44,9 @@ print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 In [5]: ## create model NN
 model = Sequential()
 model.add(Dense(12, input_dim=28, init='uniform', activation='relu')) #12 neurons, 28 input variables
+model.add(Dropout(0.5)) # Noise
 model.add(Dense(8, init='uniform', activation='relu')) # 8 neurons
+model.add(Dropout(0.5)) # Noise
 model.add(Dense(1, init='uniform', activation='sigmoid'))
 
 In [6]:# Compile model
