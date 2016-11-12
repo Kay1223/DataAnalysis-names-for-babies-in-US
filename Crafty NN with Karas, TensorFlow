@@ -25,7 +25,7 @@ In [4]: # Make test and train set
 In [5]: ## create model
     ...: model = Sequential()
     ...: model.add(Dense(12, input_dim=28, init='uniform', activation='relu')) 
-    ...: # 12 neurons, 28 input variables 
+    ...: model.add(Dropout(0.5)) # Noise
     ...: model.add(Dense(1, init='uniform', activation='sigmoid'))
     ...: 
 
