@@ -35,7 +35,7 @@ In [6]: # Compile model
 
 In [7]: model.fit(X, y, nb_epoch=150, batch_size=10)
 
-In [16]: scores = model.evaluate(X, y)
+In [8]: scores = model.evaluate(X, y)
 print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
 
@@ -50,4 +50,4 @@ model.add(Dense(1, init='uniform', activation='sigmoid'))
 In [6]:# Compile model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-In[7]:model.fit(X, y, nb_epoch=150, batch_size=10)
+In [7]:model.fit(X, y, nb_epoch=150, batch_size=10)
