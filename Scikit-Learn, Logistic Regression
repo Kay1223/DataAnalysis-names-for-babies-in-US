@@ -40,7 +40,7 @@ model = LogisticRegression()
 # In[7]:
 
 # Model fit
-Model.fit(X_train, Y_train)
+model.fit(X_train, Y_train)
 
 
 # In[8]:
