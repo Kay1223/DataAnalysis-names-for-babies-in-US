@@ -50,18 +50,21 @@ model.score(X_test, Y_test)
 
 # In[9]:
 
-# intercept
-print(model.intercept_)
+# OLS Regression Result
+import statsmodels.api as sm
 
 # In[10]:
 
-# 偏回帰係数
-print(model.coef_)
+pred_y = model.predict(X_test)
 
 # In[11]:
 
-# 決定係数
-print(model.score(X,Y))
+reg = sm.OLS(pred_y, X_test)
 
+# In[12]:
 
+f = reg.fit()
+
+# In[13]:
  
+f.summary()
