@@ -50,7 +50,7 @@ model.score(X_test, Y_test)
 
 # In[9]:
 
-# OLS Regression Result
+# Logit Regression Result
 import statsmodels.api as sm
 
 # In[10]:
@@ -59,7 +59,7 @@ pred_y = model.predict(X_test)
 
 # In[11]:
 
-reg = sm.OLS(pred_y, X_test)
+reg = sm.Logit(pred_y, X_test)
 
 # In[12]:
 
