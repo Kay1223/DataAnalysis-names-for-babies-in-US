@@ -49,7 +49,7 @@ def create_model(optimizer ='nadam', init='init'):
 # In[6]:
 
 seed = 7
-numpy.random.seed(seed)
+np.random.seed(seed)
 
 
 # In[7]:
@@ -62,8 +62,8 @@ model = KerasClassifier(build_fn=create_model, verbose=0)
 # GridSearch, input choices into lists
 optimizers = ['rmsprop', 'adam', 'nadam', 'adagrad']
 init = ['glorot_uniform', 'normal', 'uniform']
-epochs = numpy.array([50, 100, 150])
-batches = numpy.array([10, 50, 100])
+epochs = np.array([50, 100, 150])
+batches = np.array([10, 50, 100])
 param_grid = dict(optimizer=optimizers, nb_epoch=epochs, batch_size=batches, init=init)
 grid = GridSearchCV(estimator=model, param_grid=param_grid)
 
