@@ -1,0 +1,84 @@
+# Python, anaconda, Keras, TensorFlow
+
+# In[1]:
+
+from keras.models import Sequential
+from keras.layers import Dense, Activation, Dropout
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
+import numpy as np
+import pandas as pd
+from sklearn.cross_validation import train_test_split
+
+
+# In[2]:
+
+# Data
+df = pd.read_csv("Py.Ch.Logistic/data.csv")
+
+
+# In[3]:
+
+# DataFrameをNumpy配列に変換
+data_np = df.astype(np.float32).values
+X = data_np[:, 1:]
+y = data_np[:, 0]
+
+
+# In[4]:
+
+# Make test and train set
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.2, random_state=0)
+
+
+# In[5]:
+
+## create model NN
+
+def create_model(optimizer ='nadam', init='init'):
+    model = Sequential()
+    model.add(Dense(12, input_dim=28, init='uniform', activation='relu')) 
+    model.add(Dropout(0.5)) # Noise
+    model.add(Dense(8, init='uniform', activation='tanh'))
+    model.add(Dropout(0.3)) # Noise
+    model.add(Dense(1, init='uniform', activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+    return model
+
+
+# In[6]:
+
+seed = 7
+numpy.random.seed(seed)
+
+
+# In[7]:
+
+model = KerasClassifier(build_fn=create_model, verbose=0)
+
+
+# In[8]:
+
+# GridSearch, input choices into lists
+optimizers = ['rmsprop', 'adam', 'nadam', 'adagrad']
+init = ['glorot_uniform', 'normal', 'uniform']
+epochs = numpy.array([50, 100, 150])
+batches = numpy.array([10, 50, 100])
+param_grid = dict(optimizer=optimizers, nb_epoch=epochs, batch_size=batches, init=init)
+grid = GridSearchCV(estimator=model, param_grid=param_grid)
+
+
+# In[9]:
+
+grid_result = grid.fit(X, y)
+
+
+# In[10]:
+
+print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+
+
+# In[11]:
+
+for params, mean_score, scores in grid_result.grid_scores_:
+    print("%f (%f) with: %r" % (scores.mean(), scores.std(), 
