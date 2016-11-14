@@ -1,0 +1,44 @@
+# IPython, anaconda, Keras, TensorFlow
+# NN style simple Logistic regression (input -- sigmoid -- binary crossentropy)
+
+In [1]: from keras.models import Sequential
+   ...: from keras.layers import Dense, Activation
+   ...: import numpy as np
+   ...: import pandas as pd
+   ...: from sklearn.cross_validation import train_test_split
+   
+In [2]: # Data
+   ...: df = pd.read_csv("Py.Ch.Logistic/data.csv")
+
+In [3]: # DataFrameをNumpy配列に変換
+   ...: data_np = df.astype(np.float32).values
+   ...: X = data_np[:, 1:]
+   ...: y = data_np[:, 0]
+
+In [4]: # Make test and train set
+   ...: X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.2
+   ...: , random_state=0)
+
+In [5]: model = Sequential()
+   ...: model.add(Dense(1, input_dim=28, init='uniform', activation='sigmoid')) 
+
+In [6]: # Compile model
+   ...: model.compile(loss='binary_crossentropy', optimizer='nadam', metrics=['a
+   ...: ccuracy'])
+
+In [7]: model.fit(X, y, nb_epoch=100, batch_size=50)
+
+In [8]: # evaluate the model
+   ...: scores = model.evaluate(X, y)
+   ...: print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+   
+In [9]: # Logit regression result
+   ...: import statsmodels.api as sm
+   
+In [10]: pred_y = model.predict(X_test)
+
+In [11]: reg = sm.Logit(pred_y, X_test)
+
+In [12]: f = reg.fit()
+
+In [13]: f.summary()
