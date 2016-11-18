@@ -26,10 +26,10 @@ In [6]: # Compile model
    ...: model.compile(loss='binary_crossentropy', optimizer='nadam', metrics=['a
    ...: ccuracy'])
 
-In [7]: model.fit(X, y, nb_epoch=100, batch_size=50)
+In [7]: model.fit(X_train, y_train, nb_epoch=100, batch_size=50)
 
 In [8]: # evaluate the model
-   ...: scores = model.evaluate(X, y)
+   ...: scores = model.evaluate(X_test, y_test)
    ...: print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
    
 In [9]: # Logit regression result
