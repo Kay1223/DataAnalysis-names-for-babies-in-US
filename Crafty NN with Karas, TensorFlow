@@ -52,4 +52,4 @@ In [5]: ## create model NN
 In [6]:# Compile model
     ...: model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-In [7]: model.fit(X, y, nb_epoch=150, batch_size=10)
+In [7]: model.fit(X_train, y_train, nb_epoch=150, batch_size=10)
