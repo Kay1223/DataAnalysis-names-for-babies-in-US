@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.cross_validation import train_test_split
 
 # Data Import
-df = pd.read_csv("adj_uni_b_drd_mathworks.csv")
+df = pd.read_csv("data.csv")
 
 data = df.dropna()
 
