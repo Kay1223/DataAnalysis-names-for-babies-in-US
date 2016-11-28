@@ -1,0 +1,24 @@
+import pandas as pd
+import numpy as np
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LogisticRegression
+
+# Data Import
+df = pd.read_csv("adj_uni_b_drd_mathworks.csv")
+
+data = df.dropna()
+
+data_np = data.values
+X = data_np[:, 1:].astype(np.float64)
+y = data_np[:, 0].astype(np.int64)
+
+# feature selection
+model = LogisticRegression()  # estimator = LogReg
+rfe = RFE(model, 5) # n_components = 5
+fit = rfe.fit(X, y)
+
+# bool
+fit.support_
+
+# ranking
+fit.ranking_
