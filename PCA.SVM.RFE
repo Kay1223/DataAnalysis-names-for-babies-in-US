@@ -1,0 +1,58 @@
+# IPython, anaconda
+
+import numpy as np
+import pandas as pd
+from sklearn.cross_validation import train_test_split
+
+# Data Import
+df = pd.read_csv("Py.Ch.Logistic/trial.csv")
+
+df2=df[[0,15,16,17,18,19,20,21,22,23,24,25,26,27,28]]
+
+data = df2.dropna()
+
+data_np = data.values
+X = data_np[:, 1:].astype(np.float64)
+y = data_np[:, 0].astype(np.int64)
+
+# PCA
+from sklearn.decomposition import PCA
+pca = PCA(n_components= X.shape[1])
+pca.fit(X)
+
+print(pca.explained_variance_ratio_) 
+
+pca.components_
+
+# Transform PCA
+X_r = pca.fit(X).transform(X)
+
+# RFE
+from sklearn.feature_selection import RFE
+# Import SVM
+from sklearn.svm import LinearSVC
+
+model = LinearSVC(C=1.0)
+
+rfe = RFE(model, n_features_to_select=14)
+fit1 = rfe.fit(X_r, y)
+
+fit1.support_
+
+fit1.ranking_
+
+# Transform RFE
+X_rfe = rfe.fit_transform(X_r, y)
+
+#### Data Split
+X_train, X_test, y_train, y_test = train_test_split(X_rfe, y, train_size=0.3)
+
+# model fit
+model.fit(X_train, y_train)
+
+# score
+model.score(X_test, y_test)
+
+
+
+
