@@ -1,0 +1,55 @@
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+get_ipython().magic('matplotlib inline')
+
+# Data Set
+df = pd.read_csv("data/pattern1/160522.csv")
+
+# test data
+X = df.iloc[:, 5:].fillna(0).as_matrix()
+y = df.iloc[:, 4].as_matrix()
+
+# SVR 
+from sklearn.svm import SVR
+
+svr_rbf = SVR(kernel='rbf', C=1e4, gamma="auto")
+
+rbf = svr_rbf.fit(X, y)
+
+rbf.score(X, y)
+
+# test1
+df2 = pd.read_csv("data/pattern1/150524.csv")
+
+# test data
+X2 = df2.iloc[:, 5:].fillna(0).as_matrix()
+y2 = df2.iloc[:, 4].as_matrix()
+
+rbf = svr_rbf.fit(X2, y2)
+
+rbf.score(X2, y2)
+
+# test 2
+df3 = pd.read_csv("data/pattern1/140518.csv")
+
+# test data
+X3 = df3.iloc[:, 5:].fillna(0).as_matrix()
+y3 = df3.iloc[:, 4].as_matrix()
+
+rbf = svr_rbf.fit(X3, y3)
+
+rbf.score(X3, y3)
+
+svr_rbf.predict(X3)
+
+# predict用（新しいcsvの読み込みとscore予測--y_pred）
+df4 = pd.read_csv("data/----.csv")
+X4 = df4.iloc[:, 5:].fillna(0).as_matrix()
+
+svr_rbf.predict(X4)
+
+
+
+
