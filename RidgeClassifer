@@ -1,0 +1,50 @@
+# IPython, anaconda
+
+# coding: utf-8
+
+# In[1]:
+
+import numpy as np
+import pandas as pd
+from sklearn.cross_validation import train_test_split
+
+
+# In[2]:
+
+# Import Data
+df = pd.read_csv("adj_uni_b_drd_mathworks.csv")
+
+
+# In[3]:
+
+data = df.dropna()
+data_np = data.values
+X = data_np[:, 1:].astype(np.float64)
+y = data_np[:, 0].astype(np.int64)
+
+
+# In[4]:
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.2)
+
+
+# In[5]:
+
+# Import Logistic Regression
+from sklearn import linear_model
+
+
+# In[6]:
+
+clf = linear_model.RidgeClassifier()
+
+
+# In[7]:
+
+# model fit
+clf.fit(X_train, y_train)
+
+
+# In[8]:
+
+clf.score(X_test, y_test)
