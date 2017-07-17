@@ -74,7 +74,7 @@ for classifier in classifiers :
 # models' scores
 cv_result = []
 for classifier in classifiers :
-    cv_results.append(print(classifier, classifier.score(X_test, y_test)))
+    cv_result.append(print(classifier, classifier.score(X_test, y_test)))
     
 
 # PCA
