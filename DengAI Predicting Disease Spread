@@ -113,6 +113,3 @@ result = pd.concat([df4[[0,1,2]], y_pred], axis = 1)
 
 # result to txt
 result.to_csv("result_sparsepca.txt", index=False)
-
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis 
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
