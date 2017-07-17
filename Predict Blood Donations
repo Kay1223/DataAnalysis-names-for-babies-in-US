@@ -10,7 +10,7 @@ df1 = pd.read_csv("train.csv")
 df2 = pd.read_csv("test.csv")
 df3 = pd.read_csv("submission.csv")
 
-df1 = df.rename(columns = {'Unnamed: 0':'ID'})
+df1 = df1.rename(columns = {'Unnamed: 0':'ID'})
 df2 = df2.rename(columns = {'Unnamed: 0':'ID'})
 df3 = df3.rename(columns = {'Unnamed: 0':'ID'})
 
