@@ -1,0 +1,82 @@
+## for competition on DRIVENDATA
+
+
+import pandas as pd
+import numpy as np
+np.set_printoptions(threshold=np.inf)
+
+# data import
+df1 = pd.read_csv("train.csv")
+df2 = pd.read_csv("test.csv")
+df3 = pd.read_csv("submission.csv")
+
+df1 = df.rename(columns = {'Unnamed: 0':'ID'})
+df2 = df2.rename(columns = {'Unnamed: 0':'ID'})
+df3 = df3.rename(columns = {'Unnamed: 0':'ID'})
+
+X = df[[0,1,2,3,4]]
+y = df[[5]]
+
+# data split
+from sklearn.cross_validation import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.2)
+
+#classifiers
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier, ExtraTreesClassifier, VotingClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from xgboost import XGBClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysi
+
+random_state = 2
+classifiers = []
+classifiers.append(SVC(random_state=random_state))
+classifiers.append(DecisionTreeClassifier(random_state=random_state))
+classifiers.append(AdaBoostClassifier(DecisionTreeClassifier(random_state=random_state),random_state=random_state,learning_rate=0.1))
+classifiers.append(RandomForestClassifier(random_state=random_state))
+classifiers.append(ExtraTreesClassifier(random_state=random_state))
+classifiers.append(GradientBoostingClassifier(random_state=random_state))
+classifiers.append(MLPClassifier(random_state=random_state))
+classifiers.append(KNeighborsClassifier())
+classifiers.append(LogisticRegression(random_state = random_state))
+classifiers.append(LinearDiscriminantAnalysis())
+classifiers.append(XGBClassifier())
+classifiers.append(MLPClassifier(alpha =1))
+classifiers.append(GaussianProcessClassifier())
+classifiers.append(QuadraticDiscriminantAnalysis())
+
+cv_fit = []
+for classifier in classifiers :
+    cv_fit.append(classifier.fit(X_train, y_train))
+
+cv_result = []
+for classifier in classifiers :
+    cv_result.append(print(classifier, classifier.score(X_test, y_test)))
+
+model = MLPClassifier(alpha=1)
+
+model.fit(X_train, y_train)
+
+
+# Test and Result
+
+X_TEST = df2[[0,1,2,3,4]]
+y_pred = model.predict(X_TEST)
+
+# Convert to DataFrame
+y_pred = pd.DataFrame(y_pred)
+
+y_pred = y_pred.astype(float)
+
+result = pd.concat([df2[[0]], y_pred], axis = 1)
+result.to_csv("result_ext.txt", index=False)
+
+
+
