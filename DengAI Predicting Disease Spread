@@ -1,0 +1,118 @@
+##goal is to predict the total_cases label for each (city, year, weekofyear) in the test set. 
+##competition on DRIVENDATA
+
+
+import numpy as np
+import pandas as pd
+
+# data import
+df1 = pd.read_csv("train.labels.csv")
+df2 = pd.read_csv("train.features.csv")
+df3 = pd.read_csv("test.csv")
+df4 = pd.read_csv("submission.csv")
+
+# fill NaN
+df1 = df1.fillna(0)
+df2 = df2.fillna(0)
+df3 = df3.fillna(0)
+
+# insert y= "total cases" into df2
+y = df1[[3]]
+df2[["total_cases"]] = y
+
+grouped = df2.groupby("city")
+
+# replace city into quantity data
+df2 = df2.replace(["sj", "iq"], [1,2])
+df3 = df3.replace(["sj", "iq"], [1,2])
+
+# remove "week start data" ----#### How to use it?
+DF = df2.drop("week_start_date", axis = 1)
+df3 = df3.drop("week_start_date", axis = 1)
+
+y = DF[["total_cases"]]
+X = DF.iloc[:, 0:23]
+
+# data split
+from sklearn.cross_validation import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.2)
+
+# (simultaneous) classifiers import
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, \
+GradientBoostingClassifier, ExtraTreesClassifier, VotingClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from xgboost import XGBClassifier
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+# classifiers
+random_state = 2
+classifiers = []
+classifiers.append(SVC(random_state=random_state))
+classifiers.append(DecisionTreeClassifier(random_state=random_state))
+classifiers.append(AdaBoostClassifier(DecisionTreeClassifier(random_state=random_state),random_state=random_state,learning_rate=0.1))
+classifiers.append(RandomForestClassifier(random_state=random_state))
+classifiers.append(ExtraTreesClassifier(random_state=random_state))
+classifiers.append(GradientBoostingClassifier(random_state=random_state))
+classifiers.append(MLPClassifier(random_state=random_state))
+classifiers.append(KNeighborsClassifier())
+classifiers.append(LogisticRegression(random_state = random_state))
+classifiers.append(LinearDiscriminantAnalysis())
+classifiers.append(XGBClassifier())
+
+# models fit
+cv_fit = []
+for classifier in classifiers :
+    cv_fit.append(classifier.fit(X_train, y_train))
+    
+# models' scores
+cv_result = []
+for classifier in classifiers :
+    cv_results.append(print(classifier, classifier.score(X_test, y_test)))
+    
+
+# PCA
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=10)
+
+pca.fit(X)
+
+# Transform PCA
+X_r = pca.fit(X).transform(X)
+
+# pca data
+# Data Split
+X_train, X_test, y_train, y_test = train_test_split(X_r, y, train_size=0.3)
+
+from xgboost import XGBClassifier
+
+xgb = XGBClassifier()
+
+xgb.fit(X_train, y_train)
+
+xgb.score(X_test, y_test)
+
+#Test Data
+X_TEST = df3.iloc[:, :]
+
+X_r_TEST = pca.fit(X).transform(X_TEST)
+
+y_pred = tree.predict(X_r_TEST)
+
+# DataFrameに変換
+y_pred = pd.DataFrame(y_pred)
+
+result = pd.concat([df4[[0,1,2]], y_pred], axis = 1)
+
+# result to txt
+result.to_csv("result_sparsepca.txt", index=False)
+
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis 
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
